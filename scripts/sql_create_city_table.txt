@@ -1,0 +1,13 @@
+create table city
+(
+	name nvarchar(255) not null,
+	country nvarchar(255) not null,
+	subcountry nvarchar(255) not null,
+	geonameid nvarchar(255) not null
+);
+
+create index city_geonameid_index
+	on city (geonameid);
+
+create index city_name_index
+	on city (name);

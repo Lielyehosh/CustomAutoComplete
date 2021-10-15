@@ -1,0 +1,38 @@
+<div *ngIf="!isLoading" class='flex-container flex-center'>
+  <div class="col-3"></div>
+  <div class="col-6">
+    <label for="search">
+      <i class='fa fa-search icon-pos color-purple'></i>
+    </label>
+    <form [formGroup]='stateForm' novalidate >
+      <input id='search'
+             placeholder="Search for a city"
+             formControlName='search'
+             (click)='openDropDown()'
+             (input)="inputChanged($event)"
+             class='input-underline search-bar'
+             type='text'>
+    </form>
+    <div (clickOutside)="closeDropDown()">
+      <div *ngIf='showDropDown' class='search-drop-down'>
+        <div (click)='selectValue(result)' class='search-results ' *ngFor="let result of results$ | async">
+          <a [innerHTML]="result.label | letterBold: getSearchValue()">
+            {{result.label}}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class=""></div>
+</div>
+<main>
+  <div class='flex-container card-container flex-wrap flex-center '>
+    <div class='flex-container card-dimensions card flex-center width-100 ' *ngFor='let result of results$ | async'>
+      <div class='col-1 '></div>
+      {{result.label}}
+      <div class='col-1 '></div>
+    </div>
+  </div>
+</main>
+<footer>
+</footer>

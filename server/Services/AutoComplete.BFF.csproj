@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>AutoComplete.BFF</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\AutoComplete.Common.csproj" />
+      <ProjectReference Include="..\Models\AutoComplete.Models.csproj" />
+    </ItemGroup>
+
+
+</Project>
