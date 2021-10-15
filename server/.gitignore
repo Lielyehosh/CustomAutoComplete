@@ -344,3 +344,4 @@ ASALocalRun/
 
 # Services developer settings
 *.developer.json
+*.Development.json
