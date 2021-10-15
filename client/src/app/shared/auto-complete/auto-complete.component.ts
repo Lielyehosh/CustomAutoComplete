@@ -4,7 +4,7 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {AppService} from "../../../api/services/app.service";
 import {autocomplete} from "../../../api/utils";
 import {FieldChoice} from "../../../api/models/fieldChoice";
-import {takeUntil} from "rxjs/operators";
+import {shareReplay, takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-auto-complete',
@@ -35,7 +35,8 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.results$ = this.queryObs.pipe(
       autocomplete(100, ((substring) => this.appService.getAutoComplete(this.table, substring))),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      shareReplay<Array<FieldChoice>>(),
     );
   }
 
