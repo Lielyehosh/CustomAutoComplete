@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "lint": "tslint --force \"src/**/*.ts\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
