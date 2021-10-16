@@ -9,6 +9,6 @@ namespace AutoComplete.Common.Models
         public abstract string ToLabel();
         public abstract bool UpdateScheme(IDataRecord record);
 
-        public abstract DbRef ToFieldChoice(IDataRecord record);
+        public abstract DbRef ToFieldChoice();
     }
 }

@@ -40,11 +40,7 @@ namespace AutoComplete.BFF.Controllers
             {
                 var query = Query.CreateAutoCompleteQuery(substring,SearchOperation,TableName, limit);
                 var results = await _dal.SearchAutoComplete<City>(query, ct);
-                return results.Select(c => new DbRef()
-                {
-                    Id = c.Id,
-                    Label = c.ToLabel()
-                });
+                return results.Select(c => c.ToFieldChoice());
             }
             catch (Exception)
             {
@@ -71,25 +67,5 @@ namespace AutoComplete.BFF.Controllers
                 return null;
             }
         }
-        
-        // private Query CreateAutoCompleteQuery(string substring)
-        // {
-        //     try
-        //     {
-        //         return new Query()
-        //         {
-        //             Name = "Name",
-        //             Operation = SearchOperation,
-        //             Value = substring,
-        //             Table = TableName,
-        //             Limit = AutoCompleteLimit
-        //         };
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex,"Failed to parse query");
-        //         return null;
-        //     }
-        // }
     }
 }

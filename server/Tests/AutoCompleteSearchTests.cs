@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +27,8 @@ namespace AutoComplete.Tests
         [TestCase("a")]
         [TestCase("A")]
         [TestCase("I")]
-        public async Task SearchAutoCompleteTest(string nameSubString)
+        [TestCase(null)]
+        public async Task PrefixQueryTest(string nameSubString)
         {
             nameSubString = nameSubString.ToLower();
             var cts = new CancellationTokenSource();
@@ -33,9 +36,12 @@ namespace AutoComplete.Tests
             var conn = new MySqlDal("Server=127.0.0.1;Database=test_db;uid=root;pwd=root");
             var results = await conn.SearchAutoComplete<City>(new Query()
             {
-                Name = "name",
-                Operation = QueryOperation.Prefix,
-                Value = nameSubString,
+                Filter = new QueryFilter()
+                {
+                    Name = "name",
+                    Operation = QueryOperation.Prefix,
+                    Value = nameSubString,
+                },
                 Table = "city",
                 Limit = 10
             }, cts.Token);
@@ -45,6 +51,59 @@ namespace AutoComplete.Tests
                 return;
             }
             Assert.Pass();
+        }
+        
+        [Test]
+        [TestCase("12")]
+        [TestCase("Tel")]
+        [TestCase("tel")]
+        public async Task AndQueryTest(string nameSubString)
+        {
+            nameSubString = nameSubString.ToLower();
+            var cts = new CancellationTokenSource();
+            // cts.CancelAfter(TimeSpan.FromSeconds(60));
+            var conn = new MySqlDal("Server=127.0.0.1;Database=test_db;uid=root;pwd=root");
+            var results = await conn.SearchAutoComplete<City>(new Query()
+            {
+                Filter = new QueryFilter()
+                {
+                    Operation = QueryOperation.Or,
+                    Value = new List<QueryFilter>()
+                    {
+                        new QueryFilter()
+                        {
+                            Name = "name",
+                            Operation = QueryOperation.Prefix,
+                            Value = nameSubString,
+                        },
+                        new QueryFilter()
+                        {
+                            Name = "geonameid",
+                            Operation = QueryOperation.Prefix,
+                            Value = nameSubString,
+                        }
+                    },
+                },
+                Table = "city",
+                Limit = 10
+            }, cts.Token);
+            if (results.Any(result => !result.Name.ToLower().StartsWith(nameSubString)))
+            {
+                Assert.Fail();
+                return;
+            }
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task Testtt()
+        {
+            var fields = Query.GetSearchFields<City>();
+            
+            foreach (var field in fields)
+            {
+                Console.WriteLine(field);
+            }
         }
         
     }

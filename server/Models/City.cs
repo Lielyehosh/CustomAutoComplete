@@ -1,10 +1,12 @@
 using System.Data;
+using AutoComplete.Common.Attributes;
 using AutoComplete.Common.Models;
 
 namespace AutoComplete.Models
 {
     public class City : DbObject
     {
+        [SearchField]
         public string Name { get; set; }
         public string Country { get; set; }
         public string SubCountry { get; set; }
@@ -26,7 +28,7 @@ namespace AutoComplete.Models
             return true;
         }
 
-        public override DbRef ToFieldChoice(IDataRecord record)
+        public override DbRef ToFieldChoice()
         {
             return new DbRef()
             {

@@ -24,7 +24,7 @@ namespace AutoComplete.Common.Services
             await using var connection = new MySqlConnection(ConnectionString);
             try
             {
-                var queryStr = query.ToStringQuery();
+                var queryStr = query.ToSqlQuery();
                 var command = new MySqlCommand(queryStr, connection);
                 await connection.OpenAsync(ct);
                 var reader = await command.ExecuteReaderAsync(ct);
@@ -43,7 +43,8 @@ namespace AutoComplete.Common.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                // noop
+                // normal case, this requests will be canceled each time the user type new substring
                 throw;
             }
             finally
