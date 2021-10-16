@@ -1,5 +1,16 @@
 <app-auto-complete [table]="table" (select)="onSelect($event)"></app-auto-complete>
-<div *ngIf="city$">
-  {{(city$ | async).country}}
-  {{(city$ | async).geoNameId}}
+<div *ngIf="city$" class='flex-container flex-center flex-column card-dimensions card  width-100'>
+  <div class='col-3'>
+    <span class="label">Name: </span>
+    {{(city$ | async).name}}</div>
+  <div class='col-3'>
+    <span class="label">Country: </span>
+    {{(city$ | async).country}}</div>
+  <div class='col-3'>
+    <span class="label">Sub Country: </span>
+    {{(city$ | async).subCountry}}</div>
+  <div class='col-3'>
+    <span class="label">Geo Name ID: </span>
+    {{(city$ | async).geoNameId}}
+  </div>
 </div>

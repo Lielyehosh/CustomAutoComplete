@@ -16,7 +16,6 @@ export class AppService {
   }
 
   getObjectById<T>(table: string, id: string) {
-    debugger;
     return this.httpClient.get<T>( `${environment.host}/${table}/${id}`);
   }
 }

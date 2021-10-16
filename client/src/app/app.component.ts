@@ -3,7 +3,7 @@ import {FieldChoice} from "../api/models/fieldChoice";
 import {AppService} from "../api/services/app.service";
 import {City} from "../api/models/city";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
-import {switchMap, takeUntil} from "rxjs/operators";
+import {shareReplay, switchMap, takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,6 @@ export class AppComponent implements OnDestroy {
   title = 'Custom Auto Complete';
   table: string = "city";
   city$: Observable<City>;
-  // city: City;
   select$: BehaviorSubject<City> = new BehaviorSubject<City>(null);
 
   constructor(protected appService: AppService) {
@@ -24,7 +23,8 @@ export class AppComponent implements OnDestroy {
   onSelect($event: FieldChoice) {
     this.city$ = this.select$.pipe(
         switchMap(() => this.appService.getObjectById<City>(this.table, $event.id)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
+        shareReplay<City>()
       );
   }
 
