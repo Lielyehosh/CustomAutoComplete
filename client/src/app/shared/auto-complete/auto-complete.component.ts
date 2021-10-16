@@ -85,6 +85,9 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   }
 
   decSelectedValue() {
-    this.currIndex = (this.currIndex - 1) % this.limit;
+    if (this.currIndex == 0)
+      this.currIndex = this.limit - 1;
+    else
+      this.currIndex = (this.currIndex - 1) % this.limit;
   }
 }
