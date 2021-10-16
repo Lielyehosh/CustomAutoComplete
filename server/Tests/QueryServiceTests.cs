@@ -1,4 +1,5 @@
 ﻿using AutoComplete.Common.Models;
+using AutoComplete.Common.Services;
 using AutoComplete.Models;
 using NUnit.Framework;
 

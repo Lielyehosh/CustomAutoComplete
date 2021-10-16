@@ -4,8 +4,9 @@ using System.Linq;
 using System.Reflection;
 using AutoComplete.Common.Attributes;
 using AutoComplete.Common.Interfaces;
+using AutoComplete.Common.Models;
 
-namespace AutoComplete.Common.Models
+namespace AutoComplete.Common.Services
 {
     /// <summary>
     ///     Should be a singleton service, holds the query details of the db table object
