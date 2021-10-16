@@ -30,7 +30,7 @@ namespace AutoComplete.Models
             return true;
         }
 
-        public override DbRef ToFieldChoice()
+        public override DbRef ToDbRef()
         {
             return new DbRef()
             {

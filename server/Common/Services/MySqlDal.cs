@@ -34,7 +34,7 @@ namespace AutoComplete.Common.Services
                 {
                     var result = new TScheme();
                     if (result.UpdateScheme(reader))
-                        results.Add(result.ToFieldChoice());
+                        results.Add(result.ToDbRef());
                 }
 
                 // Call Close when done reading.

@@ -7,7 +7,7 @@ namespace AutoComplete.Common.Models
         public string Id { get; set; }
         public abstract string ToLabel();
         public abstract bool UpdateScheme(IDataRecord record);
-        public abstract DbRef ToFieldChoice();
+        public abstract DbRef ToDbRef();
 
         /// <summary>
         /// some of the tables doesn't have an Id field in db (primary key is a combination between multiple keys)
