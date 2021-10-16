@@ -11,11 +11,15 @@ namespace AutoComplete.Tests
         public void Setup()
         {
             NormalList = new string[] {"abc", "acd", "bcd", "def", "a", "aba"};
-            EmptyList = new string[] {};
+            NormalListDict = new Dictionary<string, string>();
+            foreach (var s in NormalList)
+            {
+                NormalListDict[s] = s;
+            }
         }
 
-        private string[] EmptyList { get; set; }
         private string[] NormalList { get; set; }
+        private IDictionary<string,string> NormalListDict { get; set; }
 
         [Test]
         [TestCase(new[] {"abc"}, "abc")]
@@ -23,8 +27,8 @@ namespace AutoComplete.Tests
         [TestCase(new[] {"def"}, "def")]
         [TestCase(new string[] {}, "defa")]
         public void Tests(string[] expectedResults, string prefix) {
-            var autoCompleteTrie = new AutoCompleteTrie(NormalList);
-            var results = autoCompleteTrie.GetWordsForPrefix(prefix);
+            var autoCompleteTrie = new AutoCompleteTrie<string>(NormalListDict);
+            var results = autoCompleteTrie.FindByPrefix(prefix);
             Assert.IsTrue(CompareArrays(results,expectedResults));
         }
 

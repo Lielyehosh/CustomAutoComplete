@@ -4,50 +4,51 @@
 
 namespace AutoComplete.Common.Utils
 {
-    public class AutoCompleteTrie
+    
+    internal class Node<TValue> {
+        internal string Prefix { get; set; }
+        internal Dictionary<char, Node<TValue>> Children { get; set; }
+
+        internal bool IsWord { get; set; }
+        
+        internal TValue Value { get; set; }
+
+        internal Node(string prefix) {
+            Prefix = prefix;
+            Children = new Dictionary<char, Node<TValue>>();
+        }
+    }
+    public class AutoCompleteTrie<TValue>
     {
-        // Trie node class
-        internal class Node {
-            internal string Prefix { get; set; }
-            internal Dictionary<char, Node> Children { get; set; }
-
-            internal bool IsWord { get; set; }
-
-            internal Node(string prefix) {
-                Prefix = prefix;
-                Children = new Dictionary<char, Node>();
-            }
-        }
-
-        // The trie
-        private Node Trie { get; set; }
+        private Node<TValue> Trie { get; set; }
         
-        // Construct the trie from the dictionary
-        public AutoCompleteTrie(IEnumerable<string> dict)
+        public AutoCompleteTrie(IDictionary<string, TValue> dict)
         {
-            Trie = new Node("");
-            foreach (var s in dict)
+            Trie = new Node<TValue>("");
+            foreach (var pair in dict)
             {
-                InsertWord(s);
+                InsertNodeValue(pair.Key, pair.Value);
             }
         }
         
-        private void InsertWord(string str) {
+        private void InsertNodeValue(string key, TValue value) {
             var curr = Trie;
-            for (var i = 0; i < str.Length; i++) {
-                if (!curr.Children.ContainsKey(str[i])) {
-                    curr.Children[str[i]] = new Node(str[..(i+1)]);
+            for (var i = 0; i < key.Length; i++) {
+                if (!curr.Children.ContainsKey(key[i])) {
+                    curr.Children[key[i]] = new Node<TValue>(key[..(i+1)]);
                 }
-                curr = curr.Children[str[i]];
-                if (i == str.Length - 1) 
+                curr = curr.Children[key[i]];
+                if (i == key.Length - 1)
+                {
                     curr.IsWord = true;
+                    curr.Value = value;
+                } 
             }
         }
-        
         
         // Find all words in trie that start with prefix
-        public IEnumerable<string> GetWordsForPrefix(string pre) {
-            var results = new LinkedList<string>();
+        public IEnumerable<TValue> FindByPrefix(string pre) {
+            var results = new LinkedList<TValue>();
         
             // Iterate to the end of the prefix
             var curr = Trie;
@@ -65,10 +66,10 @@ namespace AutoComplete.Common.Utils
             return results;
         }
 
-        private void FindAllChildWords(Node node, LinkedList<string> results)
+        private void FindAllChildWords(Node<TValue> node, LinkedList<TValue> results)
         {
             if (node.IsWord) 
-                results.AddLast(node.Prefix);
+                results.AddLast(node.Value);
             foreach (var key in node.Children.Keys)
             {
                 FindAllChildWords(node.Children[key], results);
