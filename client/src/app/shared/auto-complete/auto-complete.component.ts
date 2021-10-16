@@ -1,6 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {BehaviorSubject, Subject} from "rxjs";
 import {AppService} from "../../../api/services/app.service";
 import {autocomplete} from "../../../api/utils";
 import {FieldChoice} from "../../../api/models/fieldChoice";
@@ -17,12 +17,12 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
 
   @Input('table') table: string;
   queryObs = new BehaviorSubject<string>('');
-  results$: Observable<Array<FieldChoice>>;
   stateForm: FormGroup;
   isLoading = true;
   showDropDown = false;
   currIndex: number;
   private limit: number = 8;
+  results: Array<FieldChoice>;
 
 
   constructor(private fb: FormBuilder, protected appService: AppService) {
@@ -37,10 +37,14 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.results$ = this.queryObs.pipe(
+    this.queryObs.pipe(
       autocomplete(100, ((substring) => this.appService.getAutoComplete(this.table, substring, this.limit))),
       takeUntil(this.destroy$),
       shareReplay<Array<FieldChoice>>(),
+    ).subscribe(
+      res => {
+        this.results = res;
+      }
     );
   }
 
@@ -49,10 +53,12 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  selectValue(value: FieldChoice, index: number) {
-    debugger;
-    this.stateForm?.patchValue({"search": value.label});
-    this.inputChanged(value.label);
+  selectValue(index: number) {
+    if (index >= this.limit || index < 0)
+      return;
+
+    this.stateForm?.patchValue({"search": this.results[index].label});
+    this.inputChanged(this.results[index].label);
     this.currIndex = index;
   }
 
@@ -63,10 +69,6 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   openDropDown() {
     this.showDropDown = true;
     this.currIndex = 0;
-  }
-
-  toggleDropDown() {
-    this.showDropDown = !this.showDropDown;
   }
 
   getSearchValue() {
@@ -80,11 +82,9 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
 
   incSelectedValue() {
     this.currIndex = (this.currIndex + 1) % this.limit;
-    console.log(this.currIndex + "after increase");
   }
 
   decSelectedValue() {
     this.currIndex = (this.currIndex - 1) % this.limit;
-    console.log(this.currIndex + "after decrease");
   }
 }

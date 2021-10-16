@@ -6,6 +6,7 @@
         Or,
         Prefix,
         Suffix,
-        SubString
+        SubString,
+        Equal
     }
 }
