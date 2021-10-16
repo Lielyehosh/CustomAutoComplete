@@ -16,6 +16,7 @@ export class AppComponent implements OnDestroy {
   table: string = "city";
   city$: Observable<City>;
   select$: BehaviorSubject<City> = new BehaviorSubject<City>(null);
+  hasSelection: boolean = false;
 
   constructor(protected appService: AppService) {
   }
@@ -26,6 +27,11 @@ export class AppComponent implements OnDestroy {
         takeUntil(this.destroy$),
         shareReplay<City>()
       );
+    this.hasSelection = true;
+  }
+
+  onTouch() {
+    this.hasSelection = false;
   }
 
   ngOnDestroy(): void {

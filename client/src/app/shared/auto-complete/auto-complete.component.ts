@@ -15,6 +15,8 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
 
   @Output('select') selectEvent: EventEmitter<FieldChoice> = new EventEmitter<FieldChoice>();
+  @Output('touch') touchEvent: EventEmitter<any> = new EventEmitter<any>();
+
   @Input('table') table: string;
   queryObs = new BehaviorSubject<string>('');
   stateForm: FormGroup;
@@ -54,11 +56,12 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   }
 
   selectValue(index: number) {
-    if (index >= this.limit || index < 0)
+    if (index >= this.results.length || index < 0)
       return;
 
+    this.queryObs.next(this.results[index].label);
+    this.closeDropDown();
     this.stateForm?.patchValue({"search": this.results[index].label});
-    this.inputChanged(this.results[index].label);
     this.currIndex = index;
     this.selectEvent.emit(this.results[index]);
   }
@@ -70,6 +73,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   openDropDown() {
     this.showDropDown = true;
     this.currIndex = 0;
+    this.touchEvent.emit();
   }
 
   getSearchValue() {
@@ -79,16 +83,17 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
   inputChanged(value: string) {
     this.queryObs.next(value);
     this.openDropDown();
+    this.touchEvent.emit();
   }
 
   incSelectedValue() {
-    this.currIndex = (this.currIndex + 1) % this.limit;
+    this.currIndex = (this.currIndex + 1) % this.results.length;
   }
 
   decSelectedValue() {
     if (this.currIndex == 0)
-      this.currIndex = this.limit - 1;
+      this.currIndex = this.results.length - 1;
     else
-      this.currIndex = (this.currIndex - 1) % this.limit;
+      this.currIndex = (this.currIndex - 1) % this.results.length;
   }
 }
