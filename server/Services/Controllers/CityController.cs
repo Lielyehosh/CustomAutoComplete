@@ -20,7 +20,7 @@ namespace AutoComplete.BFF.Controllers
     {
         private readonly ILogger<CityController> _logger;
         private readonly IMySqlDal _dal;
-        private QueryOperation _searchOperation = QueryOperation.Prefix;
+        private const QueryOperation SearchOperation = QueryOperation.Prefix;
         private const string TableName = "city";
         private int AutoCompleteLimit { get; set; } = 10;
 
@@ -34,12 +34,11 @@ namespace AutoComplete.BFF.Controllers
 
         
         [HttpGet("autocomplete")]
-        public async Task<IEnumerable<DbRef>> AutoCompleteSearch([FromQuery] string substring, CancellationToken ct)
+        public async Task<IEnumerable<DbRef>> AutoCompleteSearch([FromQuery] string substring, [FromQuery] int limit, CancellationToken ct)
         {
             try
             {
-                var query = CreateAutoCompleteQuery(substring);
-                // await Task.Delay(5000, ct);
+                var query = Query.CreateAutoCompleteQuery(substring,SearchOperation,TableName, limit);
                 var results = await _dal.SearchAutoComplete<City>(query, ct);
                 return results.Select(c => new DbRef()
                 {
@@ -53,24 +52,44 @@ namespace AutoComplete.BFF.Controllers
             }
         }
 
-        private Query CreateAutoCompleteQuery(string substring)
+        [HttpGet("{id}")]
+        public async Task<IEnumerable<DbRef>> GetById([FromRoute] string id, CancellationToken ct)
         {
             try
             {
-                return new Query()
+                var query = Query.CreateSearchByIdQuery(id, TableName);
+                // await Task.Delay(5000, ct);
+                var results = await _dal.SearchAutoComplete<City>(query, ct);
+                return results.Select(c => new DbRef()
                 {
-                    Name = "Name",
-                    Operation = _searchOperation,
-                    Value = substring,
-                    Table = TableName,
-                    Limit = AutoCompleteLimit
-                };
+                    Id = c.Id,
+                    Label = c.ToLabel()
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.LogError(ex,"Failed to parse query");
                 return null;
             }
         }
+        
+        // private Query CreateAutoCompleteQuery(string substring)
+        // {
+        //     try
+        //     {
+        //         return new Query()
+        //         {
+        //             Name = "Name",
+        //             Operation = SearchOperation,
+        //             Value = substring,
+        //             Table = TableName,
+        //             Limit = AutoCompleteLimit
+        //         };
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex,"Failed to parse query");
+        //         return null;
+        //     }
+        // }
     }
 }

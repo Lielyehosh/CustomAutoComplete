@@ -16,7 +16,7 @@
   background: #A550BC;
   cursor: pointer;
   font-size: 20px;
-  transition: background-color 5s,font-size 0.5s;
+  transition: background-color 5s,font-size 0.5s ;
 }
 
 .card-container {
@@ -38,7 +38,7 @@
   position: absolute;
   width: 50%;
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: hidden;
   z-index: 10;
   background-color: #F6F6F6;
   font-family: sans-serif;
@@ -47,6 +47,10 @@
 
 .search-results {
   padding: 10px;
+}
+
+.search-selected {
+  background: #707070;
 }
 
 .search-results:hover {

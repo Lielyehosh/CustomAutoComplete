@@ -6,16 +6,23 @@
     </label>
     <form [formGroup]='stateForm' novalidate >
       <input id='search'
+             #searchInput
              placeholder="Search for a city"
              formControlName='search'
              (click)='openDropDown()'
-             (input)="inputChanged($event)"
+             (input)="inputChanged(searchInput.value)"
              class='input-underline search-bar'
+             (keyup.arrowDown)="incSelectedValue()"
+             (keyup.arrowUp)="decSelectedValue()"
+             (keyup.enter)="selectValue(results$[currIndex],currIndex)"
              type='text'>
     </form>
     <div (clickOutside)="closeDropDown()">
       <div *ngIf='showDropDown' class='search-drop-down'>
-        <div (click)='selectValue(result)' class='search-results ' *ngFor="let result of results$ | async">
+        <div *ngFor="let result of results$ | async; let i = index"
+             (click)='selectValue(result, i)'
+             class='search-results'
+             [ngClass]="{'search-selected' : currIndex == i}">
           <a [innerHTML]="result.label | letterBold: getSearchValue()">
             {{result.label}}
           </a>
@@ -27,7 +34,8 @@
 </div>
 <main>
   <div class='flex-container card-container flex-wrap flex-center '>
-    <div class='flex-container card-dimensions card flex-center width-100 ' *ngFor='let result of results$ | async'>
+    <div *ngFor='let result of results$ | async ;let i = index'
+        class='flex-container card-dimensions card flex-center width-100 ' (click)='selectValue(result, i)'>
       <div class='col-1 '></div>
       {{result.label}}
       <div class='col-1 '></div>

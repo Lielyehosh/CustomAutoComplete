@@ -12,13 +12,17 @@ import {shareReplay, takeUntil} from "rxjs/operators";
   styleUrls: ['./auto-complete.component.scss']
 })
 export class AutoCompleteComponent implements OnInit, OnDestroy {
+  private destroy$: Subject<void> = new Subject<void>();
+
+
   @Input('table') table: string;
   queryObs = new BehaviorSubject<string>('');
   results$: Observable<Array<FieldChoice>>;
-  private destroy$: Subject<void> = new Subject<void>();
-  isLoading = true;
   stateForm: FormGroup;
+  isLoading = true;
   showDropDown = false;
+  currIndex: number;
+  private limit: number = 8;
 
 
   constructor(private fb: FormBuilder, protected appService: AppService) {
@@ -34,7 +38,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.results$ = this.queryObs.pipe(
-      autocomplete(100, ((substring) => this.appService.getAutoComplete(this.table, substring))),
+      autocomplete(100, ((substring) => this.appService.getAutoComplete(this.table, substring, this.limit))),
       takeUntil(this.destroy$),
       shareReplay<Array<FieldChoice>>(),
     );
@@ -45,27 +49,42 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  selectValue(value: FieldChoice) {
+  selectValue(value: FieldChoice, index: number) {
+    debugger;
     this.stateForm?.patchValue({"search": value.label});
-    this.showDropDown = false;
+    this.inputChanged(value.label);
+    this.currIndex = index;
   }
+
   closeDropDown() {
-    this.showDropDown = !this.showDropDown;
+    this.showDropDown = false
   }
 
   openDropDown() {
-    this.showDropDown = false;
+    this.showDropDown = true;
+    this.currIndex = 0;
+  }
+
+  toggleDropDown() {
+    this.showDropDown = !this.showDropDown;
   }
 
   getSearchValue() {
     return this.stateForm?.value.search;
   }
 
-  inputChanged($event: Event) {
-    this.queryObs.next(($event.target as HTMLInputElement).value);
+  inputChanged(value: string) {
+    this.queryObs.next(value);
+    this.openDropDown();
   }
 
-  onSearchChanged($event: Event) {
-    console.log($event);
+  incSelectedValue() {
+    this.currIndex = (this.currIndex + 1) % this.limit;
+    console.log(this.currIndex + "after increase");
+  }
+
+  decSelectedValue() {
+    this.currIndex = (this.currIndex - 1) % this.limit;
+    console.log(this.currIndex + "after decrease");
   }
 }
