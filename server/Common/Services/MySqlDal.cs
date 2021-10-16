@@ -17,10 +17,10 @@ namespace AutoComplete.Common.Services
         }
 
 
-        public async Task<List<TScheme>> SearchAutoComplete<TScheme>(Query query, CancellationToken ct) 
+        public async Task<List<DbRef>> FindAutoCompleteAsync<TScheme>(Query query, CancellationToken ct) 
             where TScheme : DbObject, new()
         {
-            var results = new List<TScheme>();
+            var results = new List<DbRef>();
             await using var connection = new MySqlConnection(ConnectionString);
             try
             {
@@ -34,7 +34,7 @@ namespace AutoComplete.Common.Services
                 {
                     var result = new TScheme();
                     if (result.UpdateScheme(reader))
-                        results.Add(result);
+                        results.Add(result.ToFieldChoice());
                 }
 
                 // Call Close when done reading.
@@ -49,6 +49,40 @@ namespace AutoComplete.Common.Services
             }
             finally
             {
+                await connection.CloseAsync(ct);
+            }
+        }
+
+        public async Task<TScheme> FindByIdAsync<TScheme>(Query query, CancellationToken ct) 
+            where TScheme : DbObject, new()
+        {
+            await using var connection = new MySqlConnection(ConnectionString);
+            var result = new TScheme();
+            try
+            {
+                var queryStr = query.ToSqlQuery();
+                var command = new MySqlCommand(queryStr, connection);
+                await connection.OpenAsync(ct);
+                var reader = await command.ExecuteReaderAsync(ct);
+
+                // Call Read before accessing data.
+                while (await reader.ReadAsync(ct))
+                {
+                    if (result.UpdateScheme(reader))
+                        break;
+                }
+
+                // await reader.CloseAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // noop
+                throw;
+            }
+            finally
+            {
+                // Call Close when done reading.
                 await connection.CloseAsync(ct);
             }
         }

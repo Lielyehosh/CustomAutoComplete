@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using AutoComplete.Common.Extensions;
+using AutoComplete.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +24,10 @@ namespace AutoComplete.BFF
         {
             services.AddControllers();
             services.AddMySqlDal(Configuration["Db:ConnectionString"]);
+            services.AddQueryService(new List<Type>()
+            {
+                typeof(City)
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

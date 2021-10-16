@@ -17,9 +17,13 @@ namespace AutoComplete.Tests
         [SetUp]
         public void Setup()
         {
+            MQueryService = new QueryService();
+            MQueryService.RegisterNewTableScheme(typeof(City));
         }
 
-        
+        private QueryService MQueryService { get; set; }
+
+
         [Test]
         [TestCase("")]
         [TestCase("isr")]
@@ -34,7 +38,7 @@ namespace AutoComplete.Tests
             var cts = new CancellationTokenSource();
             // cts.CancelAfter(TimeSpan.FromSeconds(60));
             var conn = new MySqlDal("Server=127.0.0.1;Database=test_db;uid=root;pwd=root");
-            var results = await conn.SearchAutoComplete<City>(new Query()
+            var results = await conn.FindAutoCompleteAsync<City>(new Query()
             {
                 Filter = new QueryFilter()
                 {
@@ -45,7 +49,7 @@ namespace AutoComplete.Tests
                 Table = "city",
                 Limit = 10
             }, cts.Token);
-            if (results.Any(result => !result.Name.ToLower().StartsWith(nameSubString)))
+            if (results.Any(result => !result.Label.ToLower().StartsWith(nameSubString)))
             {
                 Assert.Fail();
                 return;
@@ -63,7 +67,7 @@ namespace AutoComplete.Tests
             var cts = new CancellationTokenSource();
             // cts.CancelAfter(TimeSpan.FromSeconds(60));
             var conn = new MySqlDal("Server=127.0.0.1;Database=test_db;uid=root;pwd=root");
-            var results = await conn.SearchAutoComplete<City>(new Query()
+            var results = await conn.FindAutoCompleteAsync<City>(new Query()
             {
                 Filter = new QueryFilter()
                 {
@@ -87,7 +91,7 @@ namespace AutoComplete.Tests
                 Table = "city",
                 Limit = 10
             }, cts.Token);
-            if (results.Any(result => !result.Name.ToLower().StartsWith(nameSubString)))
+            if (results.Any(result => !result.Label.ToLower().StartsWith(nameSubString)))
             {
                 Assert.Fail();
                 return;
@@ -95,16 +99,5 @@ namespace AutoComplete.Tests
             Assert.Pass();
         }
 
-        [Test]
-        public async Task Testtt()
-        {
-            var fields = Query.GetSearchFields<City>();
-            
-            foreach (var field in fields)
-            {
-                Console.WriteLine(field);
-            }
-        }
-        
     }
 }

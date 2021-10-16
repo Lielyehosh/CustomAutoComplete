@@ -16,19 +16,6 @@ namespace AutoComplete.Common.Models
         /// if 0 then no limit is required
         /// </summary>
         public int Limit { get; set; }
-
-        
-        // TODO - make it generic template and make sure its not execute on each request
-        public static List<string> GetSearchFields<T>()
-        {
-            var searchFields = typeof(T).GetProperties()
-                .Select(field => new
-                    {field, attr = field.GetCustomAttributes<SearchFieldAttribute>().FirstOrDefault()})
-                .Where(fieldAndAttr => fieldAndAttr.attr != null)
-                .Select(fieldAndAttr => fieldAndAttr.field.Name.ToLower())
-                .ToList();
-            return searchFields;
-        }
         
         public static Query CreateAutoCompleteQuery(string substring, QueryOperation searchOperation, string tableName, int limit)
         {
@@ -86,5 +73,6 @@ namespace AutoComplete.Common.Models
                 sqlQuery += $" LIMIT {Limit} ";
             return sqlQuery;
         }
+        
     }
 }

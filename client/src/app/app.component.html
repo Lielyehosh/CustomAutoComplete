@@ -1,1 +1,5 @@
-<app-auto-complete [table]="'city'"></app-auto-complete>
+<app-auto-complete [table]="table" (select)="onSelect($event)"></app-auto-complete>
+<div *ngIf="city$">
+  {{(city$ | async).country}}
+  {{(city$ | async).geoNameId}}
+</div>

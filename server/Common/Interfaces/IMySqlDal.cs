@@ -7,7 +7,10 @@ namespace AutoComplete.Common.Interfaces
 {
     public interface IMySqlDal
     {
-        public Task<List<TScheme>> SearchAutoComplete<TScheme>(Query query, CancellationToken ct)
+        public Task<List<DbRef>> FindAutoCompleteAsync<TScheme>(Query query, CancellationToken ct)
+            where TScheme: DbObject, new();
+        
+        public Task<TScheme> FindByIdAsync<TScheme>(Query query, CancellationToken ct)
             where TScheme: DbObject, new();
     }
 }

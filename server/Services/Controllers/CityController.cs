@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoComplete.Common;
 using AutoComplete.Common.Interfaces;
 using AutoComplete.Common.Models;
 using AutoComplete.Models;
@@ -18,53 +17,54 @@ namespace AutoComplete.BFF.Controllers
     [Route("[controller]")]
     public class CityController : ControllerBase
     {
-        private readonly ILogger<CityController> _logger;
-        private readonly IMySqlDal _dal;
         private const QueryOperation SearchOperation = QueryOperation.Prefix;
         private const string TableName = "city";
-        private int AutoCompleteLimit { get; set; } = 10;
+        private readonly IMySqlDal _dal;
+        private readonly ILogger<CityController> _logger;
+        private readonly IQueryService _queryService;
 
         public CityController(
             ILogger<CityController> logger,
-            IMySqlDal dal)
+            IMySqlDal dal,
+            IQueryService queryService)
         {
             _logger = logger;
             _dal = dal;
+            _queryService = queryService;
         }
-
         
+
         [HttpGet("autocomplete")]
-        public async Task<IEnumerable<DbRef>> AutoCompleteSearch([FromQuery] string substring, [FromQuery] int limit, CancellationToken ct)
+        public async Task<ActionResult<IEnumerable<DbRef>>> AutoCompleteSearch([FromQuery] string substring, [FromQuery] int limit,
+            CancellationToken ct)
         {
             try
             {
-                var query = Query.CreateAutoCompleteQuery(substring,SearchOperation,TableName, limit);
-                var results = await _dal.SearchAutoComplete<City>(query, ct);
-                return results.Select(c => c.ToFieldChoice());
+                if (string.IsNullOrEmpty(substring))
+                    substring = "";
+                var query = _queryService.CreateAutoCompleteQuery(TableName, SearchOperation, substring, limit);
+                var results = await _dal.FindAutoCompleteAsync<City>(query, ct);
+                return Ok(results);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                return BadRequest();
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<IEnumerable<DbRef>> GetById([FromRoute] string id, CancellationToken ct)
+        public async Task<ActionResult<City>> GetById([FromRoute] string id, CancellationToken ct)
         {
             try
             {
-                var query = Query.CreateSearchByIdQuery(id, TableName);
-                // await Task.Delay(5000, ct);
-                var results = await _dal.SearchAutoComplete<City>(query, ct);
-                return results.Select(c => new DbRef()
-                {
-                    Id = c.Id,
-                    Label = c.ToLabel()
-                });
+                var queryFilter = City.GetIdQueryFilter(id);
+                var query = _queryService.CreateQueryFromFilter(TableName, queryFilter);
+                var result = await _dal.FindByIdAsync<City>(query, ct);
+                return Ok(result);
             }
             catch (Exception)
             {
-                return null;
+                return BadRequest();
             }
         }
     }

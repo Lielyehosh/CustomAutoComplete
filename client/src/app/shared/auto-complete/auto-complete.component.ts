@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {BehaviorSubject, Subject} from "rxjs";
 import {AppService} from "../../../api/services/app.service";
@@ -14,7 +14,7 @@ import {shareReplay, takeUntil} from "rxjs/operators";
 export class AutoCompleteComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
 
-
+  @Output('select') selectEvent: EventEmitter<FieldChoice> = new EventEmitter<FieldChoice>();
   @Input('table') table: string;
   queryObs = new BehaviorSubject<string>('');
   stateForm: FormGroup;
@@ -60,6 +60,7 @@ export class AutoCompleteComponent implements OnInit, OnDestroy {
     this.stateForm?.patchValue({"search": this.results[index].label});
     this.inputChanged(this.results[index].label);
     this.currIndex = index;
+    this.selectEvent.emit(this.results[index]);
   }
 
   closeDropDown() {
