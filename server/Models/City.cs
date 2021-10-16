@@ -11,6 +11,7 @@ namespace AutoComplete.Models
         public string Name { get; set; }
         public string Country { get; set; }
         public string SubCountry { get; set; }
+        [SearchField]
         public string GeoNameId { get; set; }
 
         public override string ToLabel()
